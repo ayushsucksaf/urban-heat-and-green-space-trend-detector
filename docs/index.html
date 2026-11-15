@@ -1,0 +1,146 @@
+<!doctype html>
+<!-- UI code generated with AI assistance (Claude, Anthropic); disclosed per NASA Space Apps SI policy. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pune vegetation change, 2000–2024</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{--bg:#0a0e0c;--panel:#0e1411;--line:#1d2822;--tx:#dbe3de;--mu:#7b8981;--ac:#6fcf97;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{display:flex;background:var(--bg);color:var(--tx);font:14px/1.5 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Liberation Sans","DejaVu Sans",sans-serif}
+aside{width:340px;flex:none;height:100%;overflow:auto;padding:26px 22px 20px;background:var(--panel);border-right:1px solid var(--line);z-index:2}
+#map{flex:1;height:100%;background:var(--bg)}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+h1{font-size:19px;font-weight:600;margin:6px 0 20px}
+.big{font-size:44px;line-height:1;font-weight:600;color:var(--ac);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.sub{color:var(--mu);font-size:12px;margin:6px 0 10px}
+.lead{margin:0 0 22px;color:var(--tx)}
+section{border-top:1px solid var(--line);padding:16px 0}
+h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;color:var(--mu);margin:0 0 10px}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{flex:1;background:none;border:0;color:var(--mu);padding:6px 0;font:inherit;cursor:pointer}
+.seg button.on{background:var(--line);color:var(--tx)}
+input[type=range]{width:100%;accent-color:var(--ac);margin:10px 0 0}
+.bar{height:8px;border-radius:4px;background:linear-gradient(90deg,#8c510a,#f5f5e6,#1b7837)}
+.lg{display:flex;justify-content:space-between;color:var(--mu);font-size:11px;margin-top:5px}
+#read{margin-top:12px;color:var(--mu);font-variant-numeric:tabular-nums}
+#read b{color:var(--tx);font-weight:500}
+svg{display:block;width:100%;height:auto}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;cursor:pointer;border-bottom:1px solid var(--line)}
+.row:hover .n{color:var(--ac)}
+.row small{display:block;color:var(--mu);font-size:11px}
+.row .v{font-variant-numeric:tabular-nums}
+footer{color:var(--mu);font-size:11px;line-height:1.5;padding-top:14px;border-top:1px solid var(--line)}
+.osmdark{filter:invert(1) hue-rotate(180deg) brightness(.8) contrast(.9) saturate(.4)}
+.leaflet-image-layer{image-rendering:pixelated}
+.leaflet-control-attribution{background:#0e1411cc!important;color:var(--mu)!important}
+.leaflet-control-attribution a{color:var(--mu)!important}
+.leaflet-tooltip{background:var(--panel);color:var(--tx);border:1px solid var(--line);box-shadow:none}
+.leaflet-tooltip:before{display:none}
+@media(max-width:760px){body{flex-direction:column-reverse}aside{width:100%;height:48%;border:0;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<aside>
+  <div class="eyebrow">Earth system trend · Pune</div>
+  <h1>Vegetation change, 2000–2024</h1>
+  <div class="big" id="big"></div>
+  <div class="sub">vegetation (NDVI) change in the east Pune hotspots</div>
+  <p class="lead" id="lead"></p>
+
+  <section>
+    <h2>Map</h2>
+    <div class="seg" id="bm"><button class="on">Dark</button><button>Satellite</button></div>
+    <input id="op" type="range" min="20" max="100" value="90" aria-label="Overlay opacity">
+    <div class="bar" style="margin-top:16px"></div>
+    <div class="lg"><span>Loss</span><span id="rng"></span><span>Gain</span></div>
+    <div id="read">Hover the map to read the trend.</div>
+  </section>
+
+  <section>
+    <h2 id="tsh">District mean NDVI</h2>
+    <svg id="ts" viewBox="0 0 296 84"></svg>
+    <div class="lg"><span>2000</span><span>2024</span></div>
+  </section>
+
+  <section>
+    <h2>Urban hotspots</h2>
+    <div id="hs"></div>
+  </section>
+
+  <footer>Source: NASA MODIS MOD13A3 NDVI, March–May, 1 km. Temperature trends are under review and not reported. Cell names are approximate. Built with AI assistance (Claude).</footer>
+</aside>
+<div id="map"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="data.js"></script>
+<script>
+const D = window.DATA, B = D.bounds, F = D.finding;
+const NAMES = {2: "Kharadi", 4: "Manjri", 5: "Kharadi"}; // verify against a map, edit freely
+const fmt = (v, d = 0) => (v < 0 ? "−" : v > 0 ? "+" : "") + Math.abs(v).toFixed(d);
+
+// map
+const map = L.map("map", {zoomControl: false}).setView([18.52, 73.9], 10);
+L.control.zoom({position: "bottomright"}).addTo(map);
+const esri = p => `https://server.arcgisonline.com/ArcGIS/rest/services/${p}/MapServer/tile/{z}/{y}/{x}`;
+const A = "Esri, HERE, Garmin, Maxar";
+map.createPane("labels").style.zIndex = 450; map.getPane("labels").style.pointerEvents = "none";
+const dark = L.tileLayer(esri("Canvas/World_Dark_Gray_Base"), {attribution: A, maxZoom: 16});
+const osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {attribution: "© OpenStreetMap contributors", maxZoom: 19, className: "osmdark"});
+const bm = {
+  Dark: L.layerGroup([dark, L.tileLayer(esri("Canvas/World_Dark_Gray_Reference"), {pane: "labels", maxZoom: 16})]),
+  Satellite: L.layerGroup([L.tileLayer(esri("World_Imagery"), {attribution: A, maxZoom: 18}), L.tileLayer(esri("Reference/World_Boundaries_and_Places"), {pane: "labels", maxZoom: 18})])
+};
+let cur = "Dark", fell = false; bm[cur].addTo(map);
+dark.on("tileerror", () => { // keyless fallback if the Esri tiles are unreachable
+  if (fell) return; fell = true;
+  const on = cur === "Dark"; if (on) map.removeLayer(bm.Dark);
+  bm.Dark = L.layerGroup([osm]); if (on) bm.Dark.addTo(map);
+});
+const ov = L.imageOverlay(D.overlay, [[B.south, B.west], [B.north, B.east]], {opacity: .9}).addTo(map);
+
+document.querySelectorAll("#bm button").forEach(b => b.onclick = () => {
+  map.removeLayer(bm[cur]); cur = b.textContent; bm[cur].addTo(map);
+  document.querySelectorAll("#bm button").forEach(x => x.classList.toggle("on", x === b));
+});
+document.getElementById("op").oninput = e => ov.setOpacity(e.target.value / 100);
+
+// hover readout
+map.on("mousemove", e => {
+  const j = Math.floor((e.latlng.lng - B.west) / (B.east - B.west) * D.cols);
+  const i = Math.floor((B.north - e.latlng.lat) / (B.north - B.south) * D.rows);
+  const v = D.grid[i] && D.grid[i][j];
+  document.getElementById("read").innerHTML = v == null ? "No data here." : `NDVI trend <b>${fmt(v / 1000, 3)}</b> per decade`;
+});
+
+// headline figure
+const urban = D.hotspots.filter(h => h.urban);
+const vals = urban.map(h => h.ndvi_change_pct);
+const lo = Math.min(...vals), hi = Math.max(...vals);
+document.getElementById("big").textContent = `${fmt(Math.round(hi))} to ${fmt(Math.round(lo))}%`.replace("+", "");
+document.getElementById("lead").textContent = F.headline;
+document.getElementById("rng").textContent = "±" + D.vmax.toFixed(2) + " / decade";
+
+// time series
+const ts = D.ts, ys = ts.map(t => t.ndvi_mean), mn = Math.min(...ys), mx = Math.max(...ys);
+const X = y => (y - 2000) / 24 * 292 + 2, Y = v => 80 - (v - mn) / (mx - mn) * 72;
+document.getElementById("ts").innerHTML =
+  `<polyline fill="none" stroke="#6fcf97" stroke-width="1.6" points="${ts.map(t => X(t.year) + "," + Y(t.ndvi_mean)).join(" ")}"/>`;
+document.getElementById("tsh").textContent = `District mean NDVI · ${ys[0].toFixed(2)} → ${ys[ys.length - 1].toFixed(2)}`;
+
+// hotspots
+const hs = document.getElementById("hs");
+urban.forEach(h => {
+  const name = NAMES[h.rank] || "Hotspot " + h.rank;
+  const m = L.circleMarker([h.centroid_lat, h.centroid_lon], {radius: 10, color: "#fff", weight: 1.5, fill: false}).addTo(map).bindTooltip(name);
+  const r = document.createElement("div"); r.className = "row";
+  r.innerHTML = `<div><span class="n">${name}</span><small>${h.centroid_lat.toFixed(3)}°N, ${h.centroid_lon.toFixed(3)}°E</small></div><span class="v">${fmt(h.ndvi_change_pct, 1)}%</span>`;
+  r.onclick = () => map.flyTo([h.centroid_lat, h.centroid_lon], 13);
+  hs.appendChild(r);
+});
+</script>
+</body>
+</html>

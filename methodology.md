@@ -45,8 +45,7 @@ where Sxx = Σ(t_i − t̄)² = 13.0 (precomputed for the fixed time grid), n = 
 
 The combined significance mask (sig_mask.tif) flags pixels where **both** the LST warming trend and the NDVI vegetation-loss trend are individually significant.
 
-**Ward-level aggregation:** Annual composites were spatially reduced over a 1 km UTM grid (EPSG:32643) using the mean reducer. Cells are ranked by total NDVI percentage change (most negative first) 
-after LST trends were found to be non-significant city-wide. NDVI change is expressed as a percentage relative to the 2000–2004 baseline mean to account for spatial variability in background vegetation density.
+**Ward-level aggregation:** Annual composites were spatially reduced over a 1 km UTM grid (EPSG:32643) using the mean reducer. Cells are ranked by total NDVI percentage change (most negative first) after LST trends were found to be non-significant city-wide. NDVI change is expressed as a percentage relative to the 2000–2004 baseline mean to account for spatial variability in background vegetation density.
 
 **Rainfall confounder:** GPM IMERG total March–May rainfall is included in timeseries.csv to allow visual inspection of whether anomalous wet or dry years explain temperature or NDVI outliers.
 
@@ -56,17 +55,11 @@ after LST trends were found to be non-significant city-wide. NDVI change is expr
 - The t-test assumes n = 25 for all pixels; pixels with partial cloud cover in some years have an effective n < 25, making the test slightly conservative (fewer false positives).
 - Ward-level p-values are proxied by the fraction of significant pixels inside each grid cell, not an independent ward-level test.
 - LST is not the same as air temperature (typically 3–10 °C higher on paved surfaces); findings should be interpreted as surface heat intensity, not ambient temperature.
-- City-wide LST trend over the 2000–2024 March–May season was negative 
-  (mean −4.3°C, range −11.1 to +0.06°C across grid cells), with zero cells 
-  showing statistically significant net warming. This null LST result is 
-  consistent with published findings on MODIS LST sensitivity to surface 
-  emissivity changes from urban construction materials and expansion of 
-  irrigated peri-urban agriculture around Pune. Hotspot ranking was therefore 
-  based on NDVI loss magnitude rather than LST warming. The NDVI signal 
-  remains valid and independently interpretable as vegetation cover change.
+- City-wide LST trend over the 2000–2024 March–May season was negative (mean −4.3°C, range −11.1 to +0.06°C across grid cells), with zero cells showing statistically significant net warming. This null LST result is consistent with published findings on MODIS LST sensitivity to surface emissivity changes from urban construction materials and expansion of irrigated peri-urban agriculture around Pune. Hotspot ranking was therefore based on NDVI loss magnitude rather than LST warming. The NDVI signal remains valid and independently interpretable as vegetation cover change.
+- The headline urban hotspot is Cell_2 (18.524°N, 73.953°E — Kharadi–Manjri east corridor, PMC urban fringe), with −38.9% NDVI change over the study period. Cell_1 (18.127°N, 74.041°E) was excluded from the urban headline finding as its coordinates fall within Bhor taluka, a rural area approximately 43 km south of Pune city, outside the PMC urban boundary.
 
 ## Software Intelligence (SI) Disclosure
 
 The research concept, city selection (Pune), season choice (March–May), hotspot definition, and interpretation of results are the researchers' own work and were developed independently.
 
-All GEE scripting, regression implementation, significance testing code, and export formatting were written by **Claude (Anthropic), claude.ai**, used as an SI tool under the NASA Space Apps SI policy. Code is labelled as AI-generated in file headers. No SI tool was used to generate the scientific idea or to select the NASA datasets.
+All GEE scripting, regression implementation, significance testing code, and export formatting were written by **Claude (Anthropic), claude.ai**, used as an SI tool under the NASA Space Apps SI policy. Code is labelled as SI-generated in file headers. No SI tool was used to generate the scientific idea or to select the NASA datasets.
